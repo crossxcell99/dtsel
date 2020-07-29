@@ -179,8 +179,6 @@
         this.setupBody();
         this.setupFooter();
 
-        this.
-
         var self = this;
         this.addHandler("visible", function (state, prevState) {
             if (state.visible && !prevState.visible){
@@ -224,11 +222,26 @@
             Object.defineProperty(this.el, "wrapper", { value: el });
         }
         var self = this;
-        var box = getOffset(this.elem);
-        var top = box.top + this.elem.offsetHeight + (this.settings.config.topPadding || 5);
-        var left = box.left + (this.settings.config.leftPadding || 5);
-        this.el.wrapper.style.top = `${top}px`;
-        this.el.wrapper.style.left = `${left}px`;
+        var htmlRoot = document.getElementsByTagName('html')[0];
+        function setPosition(e){
+            var minTopSpace = 300;
+            var box = getOffset(self.elem);
+            var config = self.settings.config;
+            var paddingY = config.topPadding || 5;
+            var paddingX = config.leftPadding || 5;
+            var top = box.top + self.elem.offsetHeight + paddingY;
+            var left = box.left + paddingX;
+            var bottom = htmlRoot.clientHeight - box.top + paddingY;
+
+            self.el.wrapper.style.left = `${left}px`;
+            if (box.top > minTopSpace && config.direction != 'bottom') {
+                self.el.wrapper.style.bottom = `${bottom}px`;
+                self.el.wrapper.style.top = '';
+            } else {
+                self.el.wrapper.style.top = `${top}px`;
+                self.el.wrapper.style.bottom = ''; 
+            }
+        }
 
         function handler(e) {
             self.cancelBlur += 1;
@@ -236,8 +249,11 @@
                 self.elem.focus();
             }, 50);
         }
+        setPosition();
+        this.setPosition = setPosition;
         this.el.wrapper.addEventListener("mousedown", handler, false);
         this.el.wrapper.addEventListener("touchstart", handler, false);
+        window.addEventListener('resize', this.setPosition);
     }
     DTBox.prototype.setupHeader = function () {
         if (!this.el.header) {
