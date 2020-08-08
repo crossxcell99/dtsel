@@ -14,7 +14,7 @@
     /** @typedef {function(String, Function): null} AddHandler */
     /** @typedef {("DAYS"|"MONTHS"|"YEARS")} BodyType */
     /** @typedef {string|number} StringNum */
-    /** @typedef {Object.<string, StringNum} StringNumObj */
+    /** @typedef {Object.<string, StringNum>} StringNumObj */
 
     /**
      * The local state
@@ -728,7 +728,7 @@
      * @returns {Date} date object
      */
     function parseDate(value, settings) {
-        /** @type {{yyyy:number?, yy:number?, mm:number?, dd:number?}} */
+        /** @type {{yyyy:number=, yy:number=, mm:number=, dd:number=}} */
         var formatObj = {yyyy:null, yy:null, mm:null, dd:null};
         var format = ((settings.dateFormat) || '').toLowerCase();
         if (!format) {
@@ -760,7 +760,7 @@
             throw new TypeError('timeFormat not found (' + settings.timeFormat + ')');
         }
 
-        /** @type {{hh:number?, mm:number?, ss:number?, a:string?}} */
+        /** @type {{hh:number=, mm:number=, ss:number=, a:string=}} */
         var formatObj = {hh:null, mm:null, ss:null, a:null};
         var formatObj = parseData(value, format, formatObj, function(hooks){
             hooks.updateValue.add("a", function(val, data, start, stop){
