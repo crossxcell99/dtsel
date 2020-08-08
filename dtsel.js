@@ -1,4 +1,6 @@
 (function () {
+    "use strict";
+
     var BODYTYPES = ["DAYS", "MONTHS", "YEARS"];
     var MONTHS = [
         "January", "February", "March", "April", "May", "June",
@@ -7,6 +9,12 @@
     var WEEKDAYS = [
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
     ];
+
+    /** @typedef {Object.<string, Function[]>} Handlers */
+    /** @typedef {function(String, Function): null} AddHandler */
+    /** @typedef {("DAYS"|"MONTHS"|"YEARS")} BodyType */
+    /** @typedef {string|number} StringNum */
+    /** @typedef {Object.<string, StringNum} StringNumObj */
 
     /**
      * The local state
@@ -19,24 +27,43 @@
      * @property {Number} hours
      * @property {Number} minutes
      * @property {Number} seconds
-     * @property {("DAYS"|"MONTHS"|"YEARS")} bodyType
+     * @property {BodyType} bodyType
      * @property {Boolean} visible
      * @property {Number} cancelBlur
      */
 
-    /**
-     * @typedef {Object.<string, Function[]>} Handlers
-     */
+    /** 
+     * @typedef {Object} Config
+     * @property {String} dateFormat
+     * @property {String} timeFormat
+     * @property {Boolean} showDate
+     * @property {Boolean} showTime
+     * @property {Number} paddingX
+     * @property {Number} paddingY
+     * @property {BodyType} defaultView
+     * @property {"TOP"|"BOTTOM"} direction
+    */
 
     /**
-     * @typedef {function(String, Function): null} AddHandler
-     */
-
-    /**
+     * @class
      * @param {HTMLElement} elem 
      * @param {Config} config 
      */
     function DTS(elem, config) {
+        var config = config || {};
+
+        /** @type {Config} */
+        var defaultConfig = {
+            defaultView: BODYTYPES[0],
+            dateFormat: "yyyy-mm-dd",
+            timeFormat: "HH:MM:SS",
+            showDate: true,
+            showTime: false,
+            paddingX: 5,
+            paddingY: 5,
+            direction: 'TOP'
+        }
+
         if (!elem) {
             throw TypeError("input element or selector required for contructor");
         }
@@ -47,9 +74,9 @@
             }
             elem = _elem[0];
         }
-        this.config = config || {};
-        this.dateFormat = this.config.dateFormat || "yyyy-mm-dd";
-        this.timeFormat = this.config.timeFormat || "HH:MM:SS";
+        this.config = setDefaults(config, defaultConfig);
+        this.dateFormat = this.config.dateFormat;
+        this.timeFormat = this.config.timeFormat;
         this.dateFormatRegEx = new RegExp("yyyy|yy|mm|dd", "gi");
         this.timeFormatRegEx = new RegExp("hh|mm|ss|a", "gi");
         this.inputElem = elem;
@@ -80,7 +107,7 @@
         }
     }
     /**
-     * @typedef DTBox
+     * @class
      * @param {HTMLElement} elem 
      * @param {DTS} settings 
      */
@@ -128,7 +155,7 @@
 
         Object.defineProperties(this, {
             visible: getterSetter("visible", false),
-            bodyType: getterSetter("bodyType", BODYTYPES[0]),
+            bodyType: getterSetter("bodyType", settings.config.defaultView),
             value: getterSetter("value"),
             year: getterSetter("year", 0),
             month: getterSetter("month", 0),
@@ -175,9 +202,13 @@
             footer: { value: null, configurable: true }
         });
         this.setupWrapper();
-        this.setupHeader();
-        this.setupBody();
-        this.setupFooter();
+        if (this.settings.config.showDate) {
+            this.setupHeader();
+            this.setupBody();
+        }
+        if (this.settings.config.showTime) {
+            this.setupFooter();
+        }
 
         var self = this;
         this.addHandler("visible", function (state, prevState) {
@@ -185,18 +216,22 @@
                 document.body.appendChild(this.el.wrapper);
 
                 var parts = self.elem.value.split(/\s*,\s*/);
-                var startDate = parseDate(parts[0], self.settings);
-                var startTime = parseTime(parts[parts.length-1], self.settings);
-                if (!startDate.getTime()) {
+                var startDate = undefined;
+                var startTime = 0;
+                if (self.settings.config.showDate) {
+                    startDate = parseDate(parts[0], self.settings);
+                }
+                if (self.settings.config.showTime) {
+                    startTime = parseTime(parts[parts.length-1], self.settings);
+                    startTime = startTime || 0;
+                }
+                if (!(startDate && startDate.getTime())) {
                     startDate = new Date();
                     startDate = new Date(
                         startDate.getFullYear(),
                         startDate.getMonth(),
                         startDate.getDate()
                     );
-                }
-                if (!startTime) {
-                    startTime = 0;
                 }
                 var value = new Date(startDate.getTime() + startTime);
                 self.value = value;
@@ -207,9 +242,13 @@
                 self.minutes = value.getMinutes();
                 self.seconds = value.getSeconds();
 
-                self.setHeaderContent();
-                self.setBodyContent();
-                self.setFooterContent();
+                if (self.settings.config.showDate) {
+                    self.setHeaderContent();
+                    self.setBodyContent();
+                }
+                if (self.settings.config.showTime) {
+                    self.setFooterContent();
+                }
             } else if (!state.visible && prevState.visible) {
                 document.body.removeChild(this.el.wrapper);
             }
@@ -227,14 +266,14 @@
             var minTopSpace = 300;
             var box = getOffset(self.elem);
             var config = self.settings.config;
-            var paddingY = config.topPadding || 5;
-            var paddingX = config.leftPadding || 5;
+            var paddingY = config.paddingY || 5;
+            var paddingX = config.paddingX || 5;
             var top = box.top + self.elem.offsetHeight + paddingY;
             var left = box.left + paddingX;
             var bottom = htmlRoot.clientHeight - box.top + paddingY;
 
             self.el.wrapper.style.left = `${left}px`;
-            if (box.top > minTopSpace && config.direction != 'bottom') {
+            if (box.top > minTopSpace && config.direction != 'BOTTOM') {
                 self.el.wrapper.style.bottom = `${bottom}px`;
                 self.el.wrapper.style.top = '';
             } else {
@@ -385,9 +424,8 @@
             grid.children[2].children[3].classList.add(classes[1]);
         }
     }
-    /**
-     * @param {Event} e 
-     */
+
+    /** @param {Event} e */
     DTBox.prototype.onTimeChange = function(e) {
         e.stopPropagation();
         if (e.type == 'mousedown') {
@@ -406,6 +444,7 @@
         }
         this.setInputValue();
     }
+
     DTBox.prototype.setupFooter = function() {
         if (!this.el.footer) {
             var footer = document.createElement("div");
@@ -445,6 +484,7 @@
         }
         this.setFooterContent();
     }
+
     DTBox.prototype.setFooterContent = function() {
         if (this.el.footer) {
             var footer = this.el.footer;
@@ -456,14 +496,20 @@
             footer.children[2].children[1].innerText = padded(this.seconds, 2);
         }
     }
+
     DTBox.prototype.setInputValue = function() {
-        // this.elem.value = renderDate(this.value, this.settings);
         var date = new Date(this.year, this.month, this.day);
-        var joined = new Date(date.getTime() + this.time);
-        var dateString = renderDate(joined, this.settings);
-        var timeString = renderTime(joined, this.settings);
-        this.elem.value = dateString + ', ' + timeString;
+        var strings = [];
+        if (this.settings.config.showDate) {
+            strings.push(renderDate(date, this.settings));
+        }
+        if (this.settings.config.showTime) {
+            var joined = new Date(date.getTime() + this.time);
+            strings.push(renderTime(joined, this.settings));
+        }
+        this.elem.value = strings.join(', ');
     }
+
     DTBox.prototype.onDateSelected = function (e) {
         var row = e.target.parentNode;
         var date = parseInt(e.target.innerText);
@@ -478,6 +524,8 @@
         this.setHeaderContent();
         this.setBodyContent();
     }
+
+    /** @param {Event} e */
     DTBox.prototype.onMonthSelected = function (e) {
         var col = 0;
         var row = 2;
@@ -496,12 +544,16 @@
         this.setHeaderContent();
         this.setupBody();
     }
+
+    /** @param {Event} e */
     DTBox.prototype.onYearSelected = function (e) {
         this.year = parseInt(e.target.innerText);
         this.bodyType = "MONTHS";
         this.setHeaderContent();
         this.setupBody();
     }
+
+    /** @param {Event} e */
     DTBox.prototype.onHeaderChange = function (e) {
         var cell = e.target;
         if (cell.previousSibling && cell.nextSibling) {
@@ -533,6 +585,10 @@
     }
 
 
+    /**
+     * @param {HTMLElement} elem 
+     * @returns {{left:number, top:number}}
+     */
     function getOffset(elem) {
         var box = elem.getBoundingClientRect();
         var left = window.pageXOffset !== undefined ? window.pageXOffset : 
@@ -553,19 +609,34 @@
         }
     }
 
+    /** @class */
     function hookFuncs() {
+        /** @type {Handlers} */
         this._funcs = {};
     }
+    /**
+     * @param {string} key 
+     * @param {Function} func 
+     */
     hookFuncs.prototype.add = function(key, func){
         if (!this._funcs[key]){
             this._funcs[key] = [];
         }
         this._funcs[key].push(func)
     }
+    /**
+     * @param {String} key 
+     * @returns {Function[]} handlers
+     */
     hookFuncs.prototype.get = function(key){
         return this._funcs[key] ? this._funcs[key] : [];
     }
 
+    /**
+     * @param {Array.<string>} arr 
+     * @param {String} string 
+     * @returns {Array.<string>} sorted string
+     */
     function sortByStringIndex(arr, string) {
         return arr.sort(function(a, b){
             var h = string.indexOf(a);
@@ -583,13 +654,21 @@
             return rank;
         });
     }
-    function parseData(value, format, keys, setHooks) {
+
+    /**
+     * @template {StringNumObj} FormatObj
+     * @param {string} value 
+     * @param {string} format 
+     * @param {FormatObj} formatObj 
+     * @param {function(Object.<string, hookFuncs>): null} setHooks 
+     * @returns {FormatObj} formatObj
+     */
+    function parseData(value, format, formatObj, setHooks) {
         var hooks = {
             canSkip: new hookFuncs(),
             updateValue: new hookFuncs(),
         }
-        var formatObj = {};
-        var keys = sortByStringIndex(keys, format);
+        var keys = sortByStringIndex(Object.keys(formatObj), format);
         var vstart = 0; // value start
         if (setHooks) {
             setHooks(hooks);
@@ -641,19 +720,21 @@
             vstart = _vstart; // set next value start
         }
         return formatObj;
-    } 
+    }
+
     /**
      * @param {String} value 
      * @param {DTS} settings 
      * @returns {Date} date object
      */
     function parseDate(value, settings) {
-        var keys = ["yyyy","yy","mm","dd"];
+        /** @type {{yyyy:number?, yy:number?, mm:number?, dd:number?}} */
+        var formatObj = {yyyy:null, yy:null, mm:null, dd:null};
         var format = ((settings.dateFormat) || '').toLowerCase();
         if (!format) {
             throw new TypeError('dateFormat not found (' + settings.dateFormat + ')');
         }
-        var formatObj = parseData(value, format, keys, function(hooks){
+        var formatObj = parseData(value, format, formatObj, function(hooks){
             hooks.canSkip.add("yy", function(data){
                 return data["yyyy"].value;
             });
@@ -667,6 +748,7 @@
         var result = new Date(year, month, date);
         return result;
     }
+
     /**
      * @param {String} value 
      * @param {DTS} settings 
@@ -677,8 +759,10 @@
         if (!format) {
             throw new TypeError('timeFormat not found (' + settings.timeFormat + ')');
         }
-        var keys = ["hh", "mm", "ss", "a"];
-        var formatObj = parseData(value, format, keys, function(hooks){
+
+        /** @type {{hh:number?, mm:number?, ss:number?, a:string?}} */
+        var formatObj = {hh:null, mm:null, ss:null, a:null};
+        var formatObj = parseData(value, format, formatObj, function(hooks){
             hooks.updateValue.add("a", function(val, data, start, stop){
                 return value.slice(start, start + 2);
             });
@@ -698,6 +782,7 @@
         var time = hours * 60 * 60 * 1000 + minutes * 60 * 1000 + seconds * 1000;
         return time;
     }
+
     /**
      * @param {Date} value 
      * @param {DTS} settings 
@@ -720,6 +805,7 @@
         });
         return str;
     }
+
     /**
      * @param {Date} value 
      * @param {DTS} settings 
@@ -749,6 +835,7 @@
         });
         return str;
     }
+
     /**
      * checks if two dates are equal
      * @param {Date} date1 
@@ -761,6 +848,7 @@
                 date1.getMonth() == date2.getMonth() && 
                 date1.getDate() == date2.getDate());
     }
+
     /**
      * @param {Number} val 
      * @param {Number} pad 
@@ -773,6 +861,25 @@
         var diff = Math.max(pad, valStr.length) - valStr.length;
         return ('' + default_val).repeat(diff) + valStr;
     }
+
+    /**
+     * @template X
+     * @template Y
+     * @param {X} obj 
+     * @param {Y} objDefaults 
+     * @returns {X|Y} merged object
+     */
+    function setDefaults(obj, objDefaults) {
+        var keys = Object.keys(objDefaults);
+        for (var i=0; i<keys.length; i++) {
+            var key = keys[i];
+            if (!Object.prototype.hasOwnProperty.call(obj, key)) {
+                obj[key] = objDefaults[key];
+            }
+        }
+        return obj;
+    }
+
 
     window.dtsel = Object.create({},{
         DTS: { value: DTS },
@@ -790,6 +897,7 @@
                 renderDate: { value: renderDate },
                 parseTime: {value: parseTime},
                 renderTime: {value: renderTime},
+                setDefaults: {value: setDefaults},
             }),
         },
     });
