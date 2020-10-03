@@ -656,6 +656,25 @@
     }
 
     /**
+     * Remove keys from array that are not in format
+     * @param {string[]} keys 
+     * @param {string} format 
+     * @returns {string[]} new filtered array
+     */
+    function filterFormatKeys(keys, format) {
+        var out = [];
+        var formatIdx = 0;
+        for (var i = 0; i<keys.length; i++) {
+            var key = keys[i];
+            if (format.slice(formatIdx).indexOf(key) > -1) {
+                formatIdx += key.length;
+                out.push(key);
+            }
+        }
+        return out;
+    }
+
+    /**
      * @template {StringNumObj} FormatObj
      * @param {string} value 
      * @param {string} format 
@@ -669,10 +688,12 @@
             updateValue: new hookFuncs(),
         }
         var keys = sortByStringIndex(Object.keys(formatObj), format);
+        var filterdKeys = filterFormatKeys(keys, format);
         var vstart = 0; // value start
         if (setHooks) {
             setHooks(hooks);
         }
+
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             var fstart = format.indexOf(key);
@@ -680,6 +701,9 @@
             var val = null;
             var canSkip = false;
             var funcs = hooks.canSkip.get(key);
+
+            vstart = vstart || fstart;
+
             for (var j = 0; j < funcs.length; j++) {
                 if (funcs[j](formatObj)){
                     canSkip = true;
@@ -688,7 +712,7 @@
             }
             if (fstart > -1 && !canSkip) {
                 var sep = null;
-                var stop = fstart + key.length;
+                var stop = vstart + key.length;
                 var fnext = -1;
                 var nextKeyIdx = i + 1;
                 _vstart += key.length; // set next value start if current key is found
@@ -696,8 +720,11 @@
                 // get next format token used to determine separator
                 while (fnext == -1 && nextKeyIdx < keys.length){
                     var nextKey = keys[nextKeyIdx];
-                    fnext = nextKey ? format.indexOf(nextKey) : -1; // next format start
                     nextKeyIdx += 1;
+                    if (filterdKeys.indexOf(nextKey) === -1) {
+                        continue;
+                    }
+                    fnext = nextKey ? format.indexOf(nextKey) : -1; // next format start
                 }
                 if (fnext > -1){
                     sep = format.slice(stop, fnext);
