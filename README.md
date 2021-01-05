@@ -64,6 +64,7 @@ The local state
 | paddingY | <code>Number</code> | 
 | defaultView | [<code>BodyType</code>](#BodyType) | 
 | direction | <code>&quot;TOP&quot;</code> \| <code>&quot;BOTTOM&quot;</code> | 
+| startValue | <code>String</code> ISO Date Format | 
 
 <a name="BodyType"></a>
 

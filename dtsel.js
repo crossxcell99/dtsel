@@ -69,7 +69,7 @@
         }
         if (Object.getPrototypeOf(elem) === String.prototype) {
             var _elem = document.querySelectorAll(elem);
-            if (!_elem[0]){
+            if (!_elem[0]) {
                 throw Error('"' + elem + '" not found.');
             }
             elem = _elem[0];
@@ -99,10 +99,10 @@
             setTimeout(function () {
                 if (self.dtbox.cancelBlur > 0) {
                     self.dtbox.cancelBlur -= 1;
-                 } else {
+                } else {
                     self.dtbox.visible = false;
                     self.inputElem.blur();
-                 }
+                }
             }, 100);
         }
     }
@@ -164,7 +164,7 @@
             minutes: getterSetter("minutes", 0),
             seconds: getterSetter("seconds", 0),
             cancelBlur: getterSetter("cancelBlur", 0),
-            addHandler: {value: addHandler},
+            addHandler: { value: addHandler },
             month_long: {
                 get: function () {
                     return MONTHS[self.month];
@@ -181,11 +181,11 @@
                 },
             },
             time: {
-                get: function() {
+                get: function () {
                     var hours = self.hours * 60 * 60 * 1000;
                     var minutes = self.minutes * 60 * 1000;
                     var seconds = self.seconds * 1000;
-                    return  hours + minutes + seconds;
+                    return hours + minutes + seconds;
                 }
             },
         });
@@ -212,28 +212,35 @@
 
         var self = this;
         this.addHandler("visible", function (state, prevState) {
-            if (state.visible && !prevState.visible){
+            if (state.visible && !prevState.visible) {
                 document.body.appendChild(this.el.wrapper);
 
                 var parts = self.elem.value.split(/\s*,\s*/);
+                var value = undefined;
                 var startDate = undefined;
                 var startTime = 0;
-                if (self.settings.config.showDate) {
-                    startDate = parseDate(parts[0], self.settings);
+
+                if (self.settings.config.startValue) {
+                    value = new Date(self.settings.config.startValue);
+                } else {
+                    if (self.settings.config.showDate) {
+                        startDate = parseDate(parts[0], self.settings);
+                    }
+                    if (self.settings.config.showTime) {
+                        startTime = parseTime(parts[parts.length - 1], self.settings);
+                        startTime = startTime || 0;
+                    }
+                    if (!(startDate && startDate.getTime())) {
+                        startDate = new Date();
+                        startDate = new Date(
+                            startDate.getFullYear(),
+                            startDate.getMonth(),
+                            startDate.getDate()
+                        );
+                    }
+                    value = new Date(startDate.getTime() + startTime);
                 }
-                if (self.settings.config.showTime) {
-                    startTime = parseTime(parts[parts.length-1], self.settings);
-                    startTime = startTime || 0;
-                }
-                if (!(startDate && startDate.getTime())) {
-                    startDate = new Date();
-                    startDate = new Date(
-                        startDate.getFullYear(),
-                        startDate.getMonth(),
-                        startDate.getDate()
-                    );
-                }
-                var value = new Date(startDate.getTime() + startTime);
+
                 self.value = value;
                 self.year = value.getFullYear();
                 self.month = value.getMonth();
@@ -262,7 +269,7 @@
         }
         var self = this;
         var htmlRoot = document.getElementsByTagName('html')[0];
-        function setPosition(e){
+        function setPosition(e) {
             var minTopSpace = 300;
             var box = getOffset(self.elem);
             var config = self.settings.config;
@@ -278,13 +285,13 @@
                 self.el.wrapper.style.top = '';
             } else {
                 self.el.wrapper.style.top = `${top}px`;
-                self.el.wrapper.style.bottom = ''; 
+                self.el.wrapper.style.bottom = '';
             }
         }
 
         function handler(e) {
             self.cancelBlur += 1;
-            setTimeout(function(){
+            setTimeout(function () {
                 self.elem.focus();
             }, 50);
         }
@@ -397,7 +404,7 @@
                     var cell = grid.children[i].children[j];
                     var month = adjusted.getMonth();
                     var date = adjusted.getDate();
-                    
+
                     cell.innerText = date;
                     cell.classList.remove(classes[0], classes[1], classes[2]);
                     if (month != this.month) {
@@ -406,7 +413,7 @@
                             break;
                         }
                         cell.classList.add(month < this.month ? classes[0] : classes[1]);
-                    } else if (isEqualDate(adjusted, this.value)){
+                    } else if (isEqualDate(adjusted, this.value)) {
                         cell.classList.add(classes[2]);
                     }
                     adjusted = new Date(adjusted.getTime() + oneDayMilliSecs);
@@ -426,31 +433,31 @@
     }
 
     /** @param {Event} e */
-    DTBox.prototype.onTimeChange = function(e) {
+    DTBox.prototype.onTimeChange = function (e) {
         e.stopPropagation();
         if (e.type == 'mousedown') {
             this.cancelBlur += 1;
             return;
         }
-        
+
         var el = e.target;
         this[el.name] = parseInt(el.value) || 0;
         this.setupFooter();
         if (e.type == 'change') {
             var self = this;
-            setTimeout(function(){
+            setTimeout(function () {
                 self.elem.focus();
             }, 50);
         }
         this.setInputValue();
     }
 
-    DTBox.prototype.setupFooter = function() {
+    DTBox.prototype.setupFooter = function () {
         if (!this.el.footer) {
             var footer = document.createElement("div");
             var handler = this.onTimeChange.bind(this);
             var self = this;
-            
+
             function makeRow(label, name, range, changeHandler) {
                 var row = document.createElement("div");
                 row.classList.add('cal-time');
@@ -465,8 +472,8 @@
 
                 var inputCol = row.appendChild(document.createElement("div"));
                 var slider = inputCol.appendChild(document.createElement("input"));
-                Object.assign(slider, {step:1, min:0, max:range, name:name, type:'range'});
-                Object.defineProperty(footer, name, {value: slider});
+                Object.assign(slider, { step: 1, min: 0, max: range, name: name, type: 'range' });
+                Object.defineProperty(footer, name, { value: slider });
                 inputCol.classList.add('cal-time-slider');
                 slider.onchange = changeHandler;
                 slider.oninput = changeHandler;
@@ -485,7 +492,7 @@
         this.setFooterContent();
     }
 
-    DTBox.prototype.setFooterContent = function() {
+    DTBox.prototype.setFooterContent = function () {
         if (this.el.footer) {
             var footer = this.el.footer;
             footer.hours.value = this.hours;
@@ -497,7 +504,7 @@
         }
     }
 
-    DTBox.prototype.setInputValue = function() {
+    DTBox.prototype.setInputValue = function () {
         var date = new Date(this.year, this.month, this.day);
         var strings = [];
         if (this.settings.config.showDate) {
@@ -530,8 +537,8 @@
         var col = 0;
         var row = 2;
         var cell = e.target;
-        if (cell.parentNode.nextSibling){
-            row = cell.parentNode.previousSibling ? 1: 0;
+        if (cell.parentNode.nextSibling) {
+            row = cell.parentNode.previousSibling ? 1 : 0;
         }
         if (cell.previousSibling) {
             col = 3;
@@ -591,14 +598,14 @@
      */
     function getOffset(elem) {
         var box = elem.getBoundingClientRect();
-        var left = window.pageXOffset !== undefined ? window.pageXOffset : 
+        var left = window.pageXOffset !== undefined ? window.pageXOffset :
             (document.documentElement || document.body.parentNode || document.body).scrollLeft;
-        var top = window.pageYOffset !== undefined ? window.pageYOffset : 
+        var top = window.pageYOffset !== undefined ? window.pageYOffset :
             (document.documentElement || document.body.parentNode || document.body).scrollTop;
         return { left: box.left + left, top: box.top + top };
     }
     function empty(e) {
-        for (; e.children.length; ) e.removeChild(e.children[0]);
+        for (; e.children.length;) e.removeChild(e.children[0]);
     }
     function tryAppendChild(newChild, refNode) {
         try {
@@ -618,8 +625,8 @@
      * @param {string} key 
      * @param {Function} func 
      */
-    hookFuncs.prototype.add = function(key, func){
-        if (!this._funcs[key]){
+    hookFuncs.prototype.add = function (key, func) {
+        if (!this._funcs[key]) {
             this._funcs[key] = [];
         }
         this._funcs[key].push(func)
@@ -628,7 +635,7 @@
      * @param {String} key 
      * @returns {Function[]} handlers
      */
-    hookFuncs.prototype.get = function(key){
+    hookFuncs.prototype.get = function (key) {
         return this._funcs[key] ? this._funcs[key] : [];
     }
 
@@ -638,7 +645,7 @@
      * @returns {Array.<string>} sorted string
      */
     function sortByStringIndex(arr, string) {
-        return arr.sort(function(a, b){
+        return arr.sort(function (a, b) {
             var h = string.indexOf(a);
             var l = string.indexOf(b);
             var rank = 0;
@@ -664,7 +671,7 @@
     function filterFormatKeys(keys, format) {
         var out = [];
         var formatIdx = 0;
-        for (var i = 0; i<keys.length; i++) {
+        for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             if (format.slice(formatIdx).indexOf(key) > -1) {
                 formatIdx += key.length;
@@ -705,7 +712,7 @@
             vstart = vstart || fstart;
 
             for (var j = 0; j < funcs.length; j++) {
-                if (funcs[j](formatObj)){
+                if (funcs[j](formatObj)) {
                     canSkip = true;
                     break;
                 }
@@ -718,7 +725,7 @@
                 _vstart += key.length; // set next value start if current key is found
 
                 // get next format token used to determine separator
-                while (fnext == -1 && nextKeyIdx < keys.length){
+                while (fnext == -1 && nextKeyIdx < keys.length) {
                     var nextKey = keys[nextKeyIdx];
                     nextKeyIdx += 1;
                     if (filterdKeys.indexOf(nextKey) === -1) {
@@ -726,11 +733,11 @@
                     }
                     fnext = nextKey ? format.indexOf(nextKey) : -1; // next format start
                 }
-                if (fnext > -1){
+                if (fnext > -1) {
                     sep = format.slice(stop, fnext);
                     if (sep) {
                         var _stop = value.slice(vstart).indexOf(sep);
-                        if (_stop && _stop > -1){
+                        if (_stop && _stop > -1) {
                             stop = _stop + vstart;
                             _vstart = stop + sep.length;
                         }
@@ -756,16 +763,16 @@
      */
     function parseDate(value, settings) {
         /** @type {{yyyy:number=, yy:number=, mm:number=, dd:number=}} */
-        var formatObj = {yyyy:null, yy:null, mm:null, dd:null};
+        var formatObj = { yyyy: null, yy: null, mm: null, dd: null };
         var format = ((settings.dateFormat) || '').toLowerCase();
         if (!format) {
             throw new TypeError('dateFormat not found (' + settings.dateFormat + ')');
         }
-        var formatObj = parseData(value, format, formatObj, function(hooks){
-            hooks.canSkip.add("yy", function(data){
+        var formatObj = parseData(value, format, formatObj, function (hooks) {
+            hooks.canSkip.add("yy", function (data) {
                 return data["yyyy"].value;
             });
-            hooks.updateValue.add("yy", function(val){
+            hooks.updateValue.add("yy", function (val) {
                 return 100 * Math.floor(new Date().getFullYear() / 100) + val;
             });
         });
@@ -788,9 +795,9 @@
         }
 
         /** @type {{hh:number=, mm:number=, ss:number=, a:string=}} */
-        var formatObj = {hh:null, mm:null, ss:null, a:null};
-        var formatObj = parseData(value, format, formatObj, function(hooks){
-            hooks.updateValue.add("a", function(val, data, start, stop){
+        var formatObj = { hh: null, mm: null, ss: null, a: null };
+        var formatObj = parseData(value, format, formatObj, function (hooks) {
+            hooks.updateValue.add("a", function (val, data, start, stop) {
                 return value.slice(start, start + 2);
             });
         });
@@ -799,8 +806,8 @@
         var seconds = formatObj["ss"].value;
         var am_pm = formatObj["a"].value;
         var am_pm_lower = am_pm ? am_pm.toLowerCase() : am_pm;
-        if (am_pm && ["am", "pm"].indexOf(am_pm_lower) > -1){
-            if (am_pm_lower == 'am' && hours == 12){
+        if (am_pm && ["am", "pm"].indexOf(am_pm_lower) > -1) {
+            if (am_pm_lower == 'am' && hours == 12) {
                 hours = 0;
             } else if (am_pm_lower == 'pm') {
                 hours += 12;
@@ -849,7 +856,7 @@
         if (format.indexOf('a') > -1) {
             am_pm = hours >= 12 ? 'pm' : 'am';
             am_pm = Format.indexOf('A') > -1 ? am_pm.toUpperCase() : am_pm;
-            hh_am_pm = hours == 0 ? '12' : (hours > 12 ? hours%12 : hours);
+            hh_am_pm = hours == 0 ? '12' : (hours > 12 ? hours % 12 : hours);
         }
         var formatObj = {
             hh: am_pm ? hh_am_pm : (hours < 10 ? "0" + hours : hours),
@@ -871,9 +878,9 @@
      */
     function isEqualDate(date1, date2) {
         if (!(date1 && date2)) return false;
-        return (date1.getFullYear() == date2.getFullYear() && 
-                date1.getMonth() == date2.getMonth() && 
-                date1.getDate() == date2.getDate());
+        return (date1.getFullYear() == date2.getFullYear() &&
+            date1.getMonth() == date2.getMonth() &&
+            date1.getDate() == date2.getDate());
     }
 
     /**
@@ -898,7 +905,7 @@
      */
     function setDefaults(obj, objDefaults) {
         var keys = Object.keys(objDefaults);
-        for (var i=0; i<keys.length; i++) {
+        for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             if (!Object.prototype.hasOwnProperty.call(obj, key)) {
                 obj[key] = objDefaults[key];
@@ -908,7 +915,7 @@
     }
 
 
-    window.dtsel = Object.create({},{
+    window.dtsel = Object.create({}, {
         DTS: { value: DTS },
         DTObj: { value: DTBox },
         fn: {
@@ -922,9 +929,9 @@
                 getOffset: { value: getOffset },
                 parseDate: { value: parseDate },
                 renderDate: { value: renderDate },
-                parseTime: {value: parseTime},
-                renderTime: {value: renderTime},
-                setDefaults: {value: setDefaults},
+                parseTime: { value: parseTime },
+                renderTime: { value: renderTime },
+                setDefaults: { value: setDefaults },
             }),
         },
     });
