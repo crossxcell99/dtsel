@@ -36,6 +36,7 @@
      * @typedef {Object} Config
      * @property {String} dateFormat
      * @property {String} timeFormat
+     * @property {String} dateTimeSeparator
      * @property {Boolean} showDate
      * @property {Boolean} showTime
      * @property {Number} paddingX
@@ -61,7 +62,8 @@
             showTime: false,
             paddingX: 5,
             paddingY: 5,
-            direction: 'TOP'
+            direction: 'TOP',
+            dateTimeSeparator: ', '
         }
 
         if (!elem) {
@@ -77,6 +79,7 @@
         this.config = setDefaults(config, defaultConfig);
         this.dateFormat = this.config.dateFormat;
         this.timeFormat = this.config.timeFormat;
+        this.dateTimeSeparator = this.config.dateTimeSeparator;
         this.dateFormatRegEx = new RegExp("yyyy|yy|mm|dd", "gi");
         this.timeFormatRegEx = new RegExp("hh|mm|ss|a", "gi");
         this.inputElem = elem;
@@ -507,7 +510,7 @@
             var joined = new Date(date.getTime() + this.time);
             strings.push(renderTime(joined, this.settings));
         }
-        this.elem.value = strings.join(', ');
+        this.elem.value = strings.join(this.settings.dateTimeSeparator);
     }
 
     DTBox.prototype.onDateSelected = function (e) {

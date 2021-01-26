@@ -58,6 +58,7 @@ The local state
 | --- | --- |
 | dateFormat | <code>String</code> | 
 | timeFormat | <code>String</code> | 
+| dateTimeSeparator | <code>String</code> |
 | showDate | <code>Boolean</code> | 
 | showTime | <code>Boolean</code> | 
 | paddingX | <code>Number</code> | 
