@@ -49,7 +49,7 @@
      * @param {HTMLElement} elem 
      * @param {Config} config 
      */
-    function DTS(elem, config) {
+    function DTS(elem, config, callback) {
         var config = config || {};
 
         /** @type {Config} */
@@ -81,6 +81,7 @@
         this.timeFormatRegEx = new RegExp("hh|mm|ss|a", "gi");
         this.inputElem = elem;
         this.dtbox = null;
+		this.callback = callback;
         this.setup();
     }
     DTS.prototype.setup = function () {
@@ -508,6 +509,8 @@
             strings.push(renderTime(joined, this.settings));
         }
         this.elem.value = strings.join(', ');
+		if(this.settings.callback != undefined && this.settings.callback != null)
+		    this.settings.callback(strings.join(', '));
     }
 
     DTBox.prototype.onDateSelected = function (e) {
