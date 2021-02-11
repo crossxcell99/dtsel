@@ -31,10 +31,15 @@
      * @property {String} timeFormat
      * @property {Boolean} showDate
      * @property {Boolean} showTime
+     * @property {Boolean} showSeconds
      * @property {Number} paddingX
      * @property {Number} paddingY
      * @property {BodyType} defaultView
      * @property {"TOP"|"BOTTOM"} direction
+     * @property {Array} months
+     * @property {Array} monthsShort
+     * @property {Array} weekdaysShort
+     * @property {Array} timeDescr
     */
 
     /**
