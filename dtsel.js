@@ -430,6 +430,10 @@
         e.stopPropagation();
         if (e.type == 'mousedown') {
             this.cancelBlur += 1;
+            var self = this;
+            setTimeout(function(){
+                self.elem.focus();
+            }, 50);
             return;
         }
         
