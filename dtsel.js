@@ -443,6 +443,9 @@
         e.stopPropagation();
         if (e.type == 'mousedown') {
             this.cancelBlur += 1;
+            return;
+        }
+        if (e.type == 'mouseup') {
             var self = this;
             setTimeout(function(){
                 self.elem.focus();
@@ -453,12 +456,6 @@
         var el = e.target;
         this[el.name] = parseInt(el.value) || 0;
         this.setupFooter();
-        if (e.type == 'change') {
-            var self = this;
-            setTimeout(function(){
-                self.elem.focus();
-            }, 50);
-        }
         this.setInputValue();
     }
 
@@ -488,6 +485,7 @@
                 slider.onchange = changeHandler;
                 slider.oninput = changeHandler;
                 slider.onmousedown = changeHandler;
+                slider.onmouseup = changeHandler;
                 self[name] = self[name] || parseInt(slider.value) || 0;
                 footer.appendChild(row)
             }
