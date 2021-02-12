@@ -2,13 +2,6 @@
     "use strict";
 
     var BODYTYPES = ["DAYS", "MONTHS", "YEARS"];
-    var MONTHS = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    var WEEKDAYS = [
-        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-    ];
 
     /** @typedef {Object.<string, Function[]>} Handlers */
     /** @typedef {function(String, Function): null} AddHandler */
@@ -38,10 +31,15 @@
      * @property {String} timeFormat
      * @property {Boolean} showDate
      * @property {Boolean} showTime
+     * @property {Boolean} showSeconds
      * @property {Number} paddingX
      * @property {Number} paddingY
      * @property {BodyType} defaultView
      * @property {"TOP"|"BOTTOM"} direction
+     * @property {Array} months
+     * @property {Array} monthsShort
+     * @property {Array} weekdaysShort
+     * @property {Array} timeDescr
     */
 
     /**
@@ -59,9 +57,24 @@
             timeFormat: "HH:MM:SS",
             showDate: true,
             showTime: false,
+            showSeconds: true,
             paddingX: 5,
             paddingY: 5,
-            direction: 'TOP'
+            direction: 'TOP',
+            months: [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ],
+            monthsShort: [
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            ], 
+            weekdaysShort: [
+                "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"
+            ],
+            timeDescr: [
+                "HH:", "MM:", "SS:"
+            ]
         }
 
         if (!elem) {
@@ -167,12 +180,12 @@
             addHandler: {value: addHandler},
             month_long: {
                 get: function () {
-                    return MONTHS[self.month];
+                    return self.settings.config.months[self.month];
                 },
             },
             month_short: {
                 get: function () {
-                    return self.month_long.slice(0, 3);
+                    return self.settings.config.monthsShort[self.month]
                 },
             },
             state: {
@@ -355,7 +368,7 @@
                 toAppend = makeGrid(7, 7, "cal-days", "cal-day-names", this.onDateSelected.bind(this));
                 for (var i = 0; i < 7; i++) {
                     var cell = toAppend.children[0].children[i];
-                    cell.innerText = WEEKDAYS[i].slice(0, 2);
+                    cell.innerText = this.settings.config.weekdaysShort[i];
                     cell.onclick = null;
                 }
                 this.el.body.calDays = toAppend;
@@ -366,7 +379,7 @@
                 toAppend = makeGrid(3, 4, "cal-months", null, this.onMonthSelected.bind(this));
                 for (var i = 0; i < 3; i++) {
                     for (var j = 0; j < 4; j++) {
-                        var monthShort = MONTHS[4 * i + j].slice(0, 3);
+                        var monthShort = this.settings.config.monthsShort[4 * i + j];
                         toAppend.children[i].children[j].innerText = monthShort;
                     }
                 }
@@ -432,16 +445,17 @@
             this.cancelBlur += 1;
             return;
         }
-        
-        var el = e.target;
-        this[el.name] = parseInt(el.value) || 0;
-        this.setupFooter();
-        if (e.type == 'change') {
+        if (e.type == 'mouseup') {
             var self = this;
             setTimeout(function(){
                 self.elem.focus();
             }, 50);
+            return;
         }
+        
+        var el = e.target;
+        this[el.name] = parseInt(el.value) || 0;
+        this.setupFooter();
         this.setInputValue();
     }
 
@@ -471,12 +485,15 @@
                 slider.onchange = changeHandler;
                 slider.oninput = changeHandler;
                 slider.onmousedown = changeHandler;
+                slider.onmouseup = changeHandler;
                 self[name] = self[name] || parseInt(slider.value) || 0;
                 footer.appendChild(row)
             }
-            makeRow('HH:', 'hours', 23, handler);
-            makeRow('MM:', 'minutes', 59, handler);
-            makeRow('SS:', 'seconds', 59, handler);
+            makeRow(this.settings.config.timeDescr[0], 'hours', 23, handler);
+            makeRow(this.settings.config.timeDescr[1], 'minutes', 59, handler);
+            if (this.settings.config.showSeconds) {
+                makeRow(this.settings.config.timeDescr[2], 'seconds', 59, handler);
+            }
 
             footer.classList.add("cal-footer");
             Object.defineProperty(this.el, "footer", { value: footer });
@@ -492,8 +509,10 @@
             footer.children[0].children[1].innerText = padded(this.hours, 2);
             footer.minutes.value = this.minutes;
             footer.children[1].children[1].innerText = padded(this.minutes, 2);
-            footer.seconds.value = this.seconds;
-            footer.children[2].children[1].innerText = padded(this.seconds, 2);
+            if (this.settings.config.showSeconds) {
+                footer.seconds.value = this.seconds;
+                footer.children[2].children[1].innerText = padded(this.seconds, 2);
+            }
         }
     }
 
