@@ -388,12 +388,19 @@
         var classes = ["cal-cell-prev", "cal-cell-next", "cal-value"];
         if ("DAYS" == this.bodyType) {
             var oneDayMilliSecs = 24 * 60 * 60 * 1000;
+            var oneHourMilliSecs = 60 * 60 * 1000;
             var start = new Date(this.year, this.month, 1);
             var adjusted = new Date(start.getTime() - oneDayMilliSecs * start.getDay());
+            var daylightOffset = adjusted.getTimezoneOffset();
 
             grid.children[6].style.display = "";
             for (var i = 1; i < 7; i++) {
                 for (var j = 0; j < 7; j++) {
+                    // advances the adjustment in one hour if daylight just finished
+                    if (daylightOffset < adjusted.getTimezoneOffset()) {
+                        adjusted = new Date(adjusted.getTime() + oneHourMilliSecs);
+                    }
+                    
                     var cell = grid.children[i].children[j];
                     var month = adjusted.getMonth();
                     var date = adjusted.getDate();
@@ -409,6 +416,8 @@
                     } else if (isEqualDate(adjusted, this.value)){
                         cell.classList.add(classes[2]);
                     }
+                    
+                    daylightOffset = adjusted.getTimezoneOffset();
                     adjusted = new Date(adjusted.getTime() + oneDayMilliSecs);
                 }
             }
