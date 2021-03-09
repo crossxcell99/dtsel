@@ -398,7 +398,7 @@
                 for (var j = 0; j < 7; j++) {
                     // advances the adjustment in one hour if daylight just finished
                     if (daylightOffset < adjusted.getTimezoneOffset()) {
-                        adjusted = new Date(adjusted.getTime() + oneHourMiliSecs);
+                        adjusted = new Date(adjusted.getTime() + oneHourMilliSecs);
                     }
                     
                     var cell = grid.children[i].children[j];
