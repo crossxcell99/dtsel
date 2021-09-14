@@ -1,0 +1,23 @@
+name: Continous Integration
+
+on: 
+  pull_request:
+      branches: 
+        - develop
+  push:
+      branches: 
+        - develop
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install modules
+      run: npm install
+    - name: Run tests
+      run: npm test
