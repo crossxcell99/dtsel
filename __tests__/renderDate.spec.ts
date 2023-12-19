@@ -1,21 +1,25 @@
-import dtsel from '../dtsel'
-import DTSel from '../types/dtsel'
+import { FullYearMonthDate } from "../src/common";
+import { DTS } from "../src/ui";
+import type { Config } from "../src/ui";
 
-
-const cases: [string, Date, string, string][] = [
-  ['default date format', new Date(2011, 11, 25), 'DD/MM/YY', '25/12/11'],
+const cases: [string, FullYearMonthDate, string, string][] = [
+  [
+    "default date format",
+    { fullYear: 2011, month: 11, date: 25 },
+    "DD/MM/YY",
+    "25/12/11",
+  ],
 ];
 
-const makeSettings = (settings: Partial<DTSel.Config>) => {
-  return new dtsel.DTS(document.createElement('div'), settings)
+const makeSettings = (settings: Partial<Config>) => {
+  return new DTS({ element: document.createElement("input"), ...settings });
 };
 
-
-describe('Parse date', () => {
+describe("Parse date", () => {
   cases.forEach(([title, given, format, expected]) => {
     test(title, () => {
-      const settings = makeSettings({dateFormat: format})
-      expect(dtsel.fn.renderDate(given, settings)).toEqual(expected)
-    })
-  })
+      const { dts, config } = makeSettings({ dateFormat: format });
+      expect(dts.lib.renderDate(given, config.dateFormat)).toEqual(expected);
+    });
+  });
 });

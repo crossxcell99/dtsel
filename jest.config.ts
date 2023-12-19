@@ -1,10 +1,10 @@
 // jest.config.ts
-import type {Config} from '@jest/types';
-
+import type { Config } from "jest";
 
 // Or async function
-export default async (): Promise<Config.InitialOptions> => {
+export default async (): Promise<Config> => {
   return {
-    testEnvironment: 'jsdom',
+    testEnvironment: "jsdom",
+    verbose: true,
   };
 };

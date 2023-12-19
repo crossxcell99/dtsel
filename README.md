@@ -4,7 +4,8 @@ A simplistic pure javascript datetime selector
 ## Usage Example
 
 ```js
-instance = new dtsel.DTS('input[name="date_field"]',  {
+instance = new dtsel.DTS({
+    element: 'input[name="date_field"]',
     direction: 'BOTTOM',
     dateFormat: "yyyy-mm-dd",
     showTime: false,
@@ -19,34 +20,12 @@ instance = new dtsel.DTS('input[name="date_field"]',  {
 <dl>
 <dt><a href="#Config">Config</a> : <code>Object</code></dt>
 <dd></dd>
-<dt><a href="#InstanceState">InstanceState</a> : <code>Object</code></dt>
+<dt><a href="#DTSState">DTSState</a> : <code>Object</code></dt>
 <dd><p>The local state</p>
 </dd>
-<dt><a href="#BodyType">BodyType</a> : <code>&quot;DAYS&quot;</code> | <code>&quot;MONTHS&quot;</code> | <code>&quot;YEARS&quot;</code></dt>
+<dt><a href="#BodyType">BodyType</a> : <code>Object</code></dt>
 <dd></dd>
 </dl>
-
-<a name="InstanceState"></a>
-
-## InstanceState : <code>Object</code>
-The local state
-
-**Kind**: global typedef  
-**Properties**
-
-| Name | Type |
-| --- | --- |
-| value | <code>Date</code> | 
-| year | <code>Number</code> | 
-| month | <code>Number</code> | 
-| day | <code>Number</code> | 
-| time | <code>Number</code> | 
-| hours | <code>Number</code> | 
-| minutes | <code>Number</code> | 
-| seconds | <code>Number</code> | 
-| bodyType | [<code>BodyType</code>](#BodyType) | 
-| visible | <code>Boolean</code> | 
-| cancelBlur | <code>Number</code> | 
 
 <a name="Config"></a>
 
@@ -64,6 +43,24 @@ The local state
 | paddingY | <code>Number</code> | 
 | defaultView | [<code>BodyType</code>](#BodyType) | 
 | direction | <code>&quot;TOP&quot;</code> \| <code>&quot;BOTTOM&quot;</code> | 
+
+<a name="DTSState"></a>
+
+## DTSState : <code>Object</code>
+The local state
+
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type |
+| --- | --- |
+| fullYear | <code>Number</code> | 
+| month | <code>Number</code> | 
+| date | <code>Number</code> | 
+| hours | <code>Number</code> | 
+| minutes | <code>Number</code> | 
+| seconds | <code>Number</code> | 
+| bodyType | [<code>BodyType</code>](#BodyType) | 
 
 <a name="BodyType"></a>
 

@@ -1,22 +1,17 @@
-name: CI
+name: Release
 
 on: 
-  pull_request:
-    branches: 
-      - develop
   push:
-    branches: 
-      - develop
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-[a-zA-Z]*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 4
       matrix:
         node-version: [18]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,9 +26,11 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Lint
-        run: pnpm lint
-      - name: Test
-        run: pnpm test
       - name: Build
         run: pnpm build
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          files: |
+            dist/*

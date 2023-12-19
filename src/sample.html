@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="module" src="./startBrowser.ts" ></script>
+    <script>
+      window.addEventListener("load", function(){
+        const instance = new dtsel.DTS({
+          element: "#field",
+          direction: "BOTTOM",
+          dateFormat: "yyyy-mm-dd",
+          showTime: true,
+          timeFormat: "HH:MM:SS",
+        });
+      }, false);
+    </script>
+  </head>
+
+  <body>
+    <h1>Date Time Selector</h1>
+    <div id="field-wrapper" style='margin: 30px auto; width: 55%'>
+      <input
+        name="field"
+        id="field"
+        type="text"
+        style='
+          padding: 10px;
+          width: 100%;
+          background-color: #eee;
+          border-radius: 1px;
+          outline: 1px solid pink;
+          border: none;
+          outline-offset: 1px;
+        '
+      />
+    </div>
+  </body>
+</html>

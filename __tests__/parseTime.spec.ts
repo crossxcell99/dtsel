@@ -1,29 +1,30 @@
-import dtsel from '../dtsel'
-import DTSel from '../types/dtsel'
+import { HoursMinutesSeconds } from "../src/common";
+import { DTS } from "../src/ui";
+import type { Config } from "../src/ui";
 
-
-const getTime = (timeTuple: [hours?: number, minutes?: number, seconds?: number]) => {
-  let [ hours, minutes, seconds ] = timeTuple
-  hours = hours || 0
-  minutes = minutes || 0
-  seconds = seconds || 0
-  return hours * 60 * 60 * 1000 + minutes * 60 * 1000 + seconds * 1000;
-}
-
-const cases: [string, string, string, number][] = [
-  ['default time format', '13:30:45', 'HH:MM:SS', getTime([13, 30, 45])],
-];
-
-const makeSettings = (settings: Partial<DTSel.Config>) => {
-  return new dtsel.DTS(document.createElement('div'), settings)
+const getTime = (
+  timeTuple: [hours?: number, minutes?: number, seconds?: number],
+): HoursMinutesSeconds => {
+  let [hours, minutes, seconds] = timeTuple;
+  hours = hours || 0;
+  minutes = minutes || 0;
+  seconds = seconds || 0;
+  return { hours, minutes, seconds };
 };
 
+const cases: [string, string, string, HoursMinutesSeconds][] = [
+  ["default time format", "13:30:45", "HH:MM:SS", getTime([13, 30, 45])],
+];
 
-describe('Parse time', () => {
+const makeSettings = (settings: Partial<Config>) => {
+  return new DTS({ element: document.createElement("input"), ...settings });
+};
+
+describe("Parse time", () => {
   cases.forEach(([title, given, format, expected]) => {
     test(title, () => {
-      const settings = makeSettings({timeFormat: format})
-      expect(dtsel.fn.parseTime(given, settings)).toEqual(expected)
-    })
-  })
+      const { dts, config } = makeSettings({ timeFormat: format });
+      expect(dts.lib.parseTime(given, config.timeFormat)).toEqual(expected);
+    });
+  });
 });

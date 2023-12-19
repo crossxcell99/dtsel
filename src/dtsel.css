@@ -10,7 +10,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     -o-user-select: none;
-    /* user-select: none; */
+    user-select: none;
 }
 .cal-header, .cal-row {
     display: flex;
@@ -67,13 +67,11 @@
     justify-content: flex-start;
     height: 27px;
     line-height: 27px;
-}
-.cal-time-label, .cal-time-value {
-    flex: 0.12;
-    text-align: center;
+    font-family: monospace;
 }
 .cal-time-slider {
-    flex: 0.77;
+    flex: 1;
+    margin-left: 3px;
     background-image: linear-gradient(to right, #d1d8dd, #d1d8dd);
     background-repeat: no-repeat;
     background-size: 100% 1px;
@@ -83,9 +81,13 @@
 .cal-time-slider input {
     width: 100%;
     -webkit-appearance: none;
+    appearance: none;
     background: 0 0;
     cursor: pointer;
     height: 100%;
     outline: 0;
     user-select: auto;
+}
+.cal-footer {
+    padding: 0 3px;
 }

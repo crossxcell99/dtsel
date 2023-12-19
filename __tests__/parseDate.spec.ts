@@ -1,25 +1,43 @@
-import dtsel from '../dtsel'
-import DTSel from '../types/dtsel'
+import { FullYearMonthDate } from "../src/common";
+import { DTS } from "../src/ui";
+import type { Config } from "../src/ui";
 
-
-const cases: [string, string, string, Date][] = [
-  ['slash separator', '2012/12/12', 'YYYY/MM/DD', new Date(2012, 11, 12)],
-  ['slash separator and 2 digit year', '12/12/12', 'DD/MM/YY', new Date(2012, 11, 12)],
-  ['dash separator', '2012-12-31', 'YYYY-MM-DD', new Date(2012, 11, 31)],
-  ['mixed casing', '12-31-19', 'mm-DD-yY', new Date(2019, 11, 31)],
+const cases: [string, string, string, FullYearMonthDate][] = [
+  [
+    "slash separator",
+    "2012/12/12",
+    "YYYY/MM/DD",
+    { fullYear: 2012, month: 11, date: 12 },
+  ],
+  [
+    "slash separator and 2 digit year",
+    "12/12/12",
+    "DD/MM/YY",
+    { fullYear: 2012, month: 11, date: 12 },
+  ],
+  [
+    "dash separator",
+    "2012-12-31",
+    "YYYY-MM-DD",
+    { fullYear: 2012, month: 11, date: 31 },
+  ],
+  [
+    "mixed casing",
+    "12-31-19",
+    "mm-DD-yY",
+    { fullYear: 2019, month: 11, date: 31 },
+  ],
 ];
 
-const makeSettings = (settings: Partial<DTSel.Config>) => {
-  return new dtsel.DTS(document.createElement('div'), settings)
+const makeSettings = (settings: Partial<Config>) => {
+  return new DTS({ element: document.createElement("input"), ...settings });
 };
 
-
-describe('Parse date', () => {
+describe("Parse date", () => {
   cases.forEach(([title, given, format, expected]) => {
     test(title, () => {
-      const settings = makeSettings({dateFormat: format})
-      expect(dtsel.fn.parseDate(given, settings).getTime())
-        .toEqual(expected.getTime())
-    })
-  })
+      const { dts, config } = makeSettings({ dateFormat: format });
+      expect(dts.lib.parseDate(given, config.dateFormat)).toEqual(expected);
+    });
+  });
 });

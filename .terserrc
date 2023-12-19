@@ -1,0 +1,7 @@
+{
+    "mangle": {},
+    "compress": {
+        "passes": 0,
+        "toplevel": true
+    }
+}
