@@ -1,6 +1,6 @@
 {
   "name": "dtsel",
-  "version": "1.1.0",
+  "version": "v2.0.0",
   "description": "A simplistic pure javascript datetime selector",
   "main": "dist/main.js",
   "module": "dist/module.js",
