@@ -1,6 +1,6 @@
 {
-  "name": "dtsel",
-  "version": "v2.0.0",
+  "name": "@dtsel/dtsel",
+  "version": "v2.0.1",
   "description": "A simplistic pure javascript datetime selector",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -44,6 +44,9 @@
     "url": "https://github.com/crossxcell99/dtsel/issues"
   },
   "homepage": "https://github.com/crossxcell99/dtsel#readme",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",

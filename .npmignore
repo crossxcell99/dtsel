@@ -1,0 +1,16 @@
+node_modules
+.parcel-cache
+*.tsbuildinfo
+.npmrc
+__tests__
+src
+.eslintignore
+.eslintrc*
+.github
+.parcelrc
+.prettierignore
+.prettierrc*
+.terserrc
+babel.config.*
+jest.config.*
+tsconfig.*
